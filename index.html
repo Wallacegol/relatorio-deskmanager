@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório DeskManager</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Cor de destaque baseada na imagem enviada */
+        .color-primary {
+            color: #79396B;
+        }
+        .bg-primary {
+            background-color: #79396B;
+        }
+        .btn-red {
+            background-color: #E64A4A;
+        }
+        .btn-red:hover {
+            background-color: #D32F2F;
+        }
+        /* Estilos personalizados para o guia de uso */
+        .step-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: #79396B;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-8 lg:p-12">
+        <div class="bg-white rounded-xl shadow-xl p-8 lg:p-10 border border-gray-200">
+            <!-- Título atualizado para texto simples, conforme solicitado -->
+            <h1 class="text-4xl lg:text-5xl font-extrabold color-primary text-center mb-4">
+                Relatório DeskManager
+            </h1>
+            <p class="text-center text-lg lg:text-xl text-gray-600 mb-8">
+                Envie sua planilha do DeskManager para gerar os dados do relatório automaticamente.
+            </p>
+
+            <!-- Seção de Upload de Arquivo -->
+            <div class="flex flex-col items-center space-y-6">
+                <label for="fileInput" class="w-full max-w-xl text-center">
+                    <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 lg:p-8 cursor-pointer hover:border-red-400 transition-colors duration-200">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4v-1a4 4 0 014-4h7a4 4 0 014 4v1a4 4 0 01-4 4H7zM16 12l-4-4m0 0l-4 4m4-4v12"></path></svg>
+                        <p class="mt-4 text-sm text-gray-600 font-medium">Arraste e solte o arquivo aqui ou <span class="text-red-600 font-semibold">clique para selecionar</span></p>
+                        <p id="fileName" class="text-xs text-gray-500 mt-1"></p>
+                    </div>
+                </label>
+                <!-- Botão com a nova cor vermelha -->
+                <input type="file" id="fileInput" class="hidden" accept=".xlsx, .xls, .csv">
+                <button id="processButton" class="w-full max-w-sm px-6 py-3 btn-red text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-red-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Processar Relatório
+                </button>
+            </div>
+            
+            <!-- Guia de Uso personalizado com design -->
+            <div class="mt-12 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Guia de Uso</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Passo 1 -->
+                    <div class="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md border-t-4 border-red-500">
+                        <div class="step-number bg-primary text-white text-lg">1</div>
+                        <h4 class="mt-4 text-xl font-semibold text-gray-800">Fazer Upload</h4>
+                        <p class="mt-2 text-sm text-gray-600">Arraste e solte a planilha ou clique para selecionar o arquivo (.xlsx, .xls ou .csv).</p>
+                    </div>
+                    <!-- Passo 2 -->
+                    <div class="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md border-t-4 border-red-500">
+                        <div class="step-number bg-primary text-white text-lg">2</div>
+                        <h4 class="mt-4 text-xl font-semibold text-gray-800">Processar Dados</h4>
+                        <p class="mt-2 text-sm text-gray-600">Clique no botão "Processar Relatório" para filtrar e calcular todos os indicadores.</p>
+                    </div>
+                    <!-- Passo 3 -->
+                    <div class="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md border-t-4 border-red-500">
+                        <div class="step-number bg-primary text-white text-lg">3</div>
+                        <h4 class="mt-4 text-xl font-semibold text-gray-800">Visualizar e Exportar</h4>
+                        <p class="mt-2 text-sm text-gray-600">Os resultados aparecerão abaixo. Clique em "Exportar para XLSX" para salvar em Excel.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Resultados -->
+            <div id="results" class="mt-12 hidden">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-gray-300 pb-2">Resultados do Relatório</h2>
+                <!-- Botão de exportação adicionado aqui -->
+                <button id="exportButton" class="w-full max-w-sm px-6 py-3 bg-green-500 text-white font-bold text-lg rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-300 mb-8 hidden">
+                    Exportar para XLSX
+                </button>
+                <div id="loading" class="flex flex-col items-center justify-center space-y-4">
+                    <svg class="animate-spin h-10 w-10 color-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-gray-500 font-medium">Processando sua planilha...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biblioteca para ler arquivos XLSX e CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Mapeamento dos nomes de colunas
+        const COL_GRUPO_AUTO_CATEGORIA = 'Grupo da Auto-Categoria - Nome';
+        const COL_NOME_STATUS = 'Nome do Status';
+        const COL_FANTASIA = 'Fantasia';
+        const COL_NOME_OPERADOR = 'Nome do Operador';
+        const COL_DATA_CRIACAO = 'Data de Criação';
+        const COL_TIPO_OCORRENCIA = 'Nome do Tipo de Ocorrência';
+        const COL_CHAMADO = 'Nº Chamado';
+
+        const fileInput = document.getElementById('fileInput');
+        const processButton = document.getElementById('processButton');
+        const exportButton = document.getElementById('exportButton');
+        const fileNameSpan = document.getElementById('fileName');
+        const resultsDiv = document.getElementById('results');
+        const loadingDiv = document.getElementById('loading');
+
+        let data = [];
+        let globalCalculatedData = {};
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                fileNameSpan.textContent = `Arquivo selecionado: ${file.name}`;
+                processButton.disabled = false;
+            } else {
+                fileNameSpan.textContent = '';
+                processButton.disabled = true;
+            }
+        });
+
+        processButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'p-4 mt-4 bg-red-100 border border-red-400 text-red-700 rounded-lg';
+                errorMessage.textContent = 'Por favor, selecione um arquivo.';
+                resultsDiv.innerHTML = '';
+                resultsDiv.classList.remove('hidden');
+                resultsDiv.appendChild(errorMessage);
+                return;
+            }
+
+            resultsDiv.classList.remove('hidden');
+            loadingDiv.classList.remove('hidden');
+            document.querySelectorAll('.report-section').forEach(el => el.remove());
+            exportButton.classList.add('hidden');
+
+            const reader = new FileReader();
+            
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            
+            reader.onload = (e) => {
+                let workbook;
+                try {
+                    if (fileExtension === 'csv') {
+                        workbook = XLSX.read(e.target.result, { type: 'string', FS: ',' });
+                    } else {
+                        workbook = XLSX.read(e.target.result, { type: 'binary' });
+                    }
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                    processData(data);
+                } catch (error) {
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg';
+                    errorMessage.textContent = `Ocorreu um erro ao processar o arquivo. Por favor, verifique se o arquivo está no formato correto e tente novamente. Detalhes: ${error.message}`;
+                    resultsDiv.appendChild(errorMessage);
+                }
+                loadingDiv.classList.add('hidden');
+            };
+
+            if (fileExtension === 'csv') {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
+        });
+
+        function processData(data) {
+            if (data.length === 0 || !data[0][COL_CHAMADO] || !data[0][COL_GRUPO_AUTO_CATEGORIA]) {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg';
+                errorMessage.textContent = 'Não foi possível ler a planilha ou os cabeçalhos estão incorretos. Por favor, verifique se as colunas "Nº Chamado" e "Grupo da Auto-Categoria - Nome" existem e tente novamente.';
+                resultsDiv.appendChild(errorMessage);
+                return;
+            }
+
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'space-y-8 report-section';
+            
+            const gruposSAC = ['Suporte - SASC', 'Suporte - SASC CONNECT', 'Suporte - SASC CM'];
+            const statusBacklog = ['Aguardando Atendimento', 'Em andamento', 'Em Análise', 'Transferência'];
+            const operadoresBacklog = ['Wallace', 'Mirlaine', 'Agata'];
+            const tiposOcorrenciaResolvidos = ['Atividade', 'Orientação', 'Incidente (Erro)'];
+            const operadoresResolvidos = ['Agata', 'Mirlaine', 'Wallace'];
+
+            const atendidosSAC = data.filter(row => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || '').trim();
+                const fantasia = (row[COL_FANTASIA] || '').trim();
+                return gruposSAC.includes(grupo) && fantasia !== 'COOPSASC';
+            });
+            const totalAtendidosSAC = atendidosSAC.length;
+
+            const backlogTriagem = data.filter(row => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || '').trim();
+                const status = (row[COL_NOME_STATUS] || '').trim();
+                const operador = (row[COL_NOME_OPERADOR] || '').trim();
+                return gruposSAC.includes(grupo) && statusBacklog.includes(status) && operadoresBacklog.includes(operador);
+            });
+            const totalBacklogTriagem = backlogTriagem.length;
+            const naoAtendidosPrazo = totalBacklogTriagem;
+
+            const resolvidosServicos = data.filter(row => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || '').trim();
+                const tipoOcorrencia = (row[COL_TIPO_OCORRENCIA] || '').trim();
+                const status = (row[COL_NOME_STATUS] || '').trim();
+                const fantasia = (row[COL_FANTASIA] || '').trim();
+                const operador = (row[COL_NOME_OPERADOR] || '').trim();
+                const statusIsResolvido = (status === 'Resolvido' || status === 'Resolvidos');
+                return gruposSAC.includes(grupo) && 
+                       tiposOcorrenciaResolvidos.includes(tipoOcorrencia) &&
+                       statusIsResolvido && 
+                       fantasia !== 'COOPSASC' &&
+                       operadoresResolvidos.includes(operador);
+            });
+            const totalResolvidosServicos = resolvidosServicos.length;
+
+            const totalPorGrupo = data.reduce((acc, row) => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || 'Sem Grupo').trim();
+                if (!acc[grupo]) {
+                    acc[grupo] = { total: 0, atendidosSAC: 0 };
+                }
+                acc[grupo].total++;
+                return acc;
+            }, {});
+
+            atendidosSAC.forEach(row => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || '').trim();
+                if (totalPorGrupo[grupo]) {
+                    totalPorGrupo[grupo].atendidosSAC++;
+                }
+            });
+
+            const grandTotalChamados = Object.values(totalPorGrupo).reduce((sum, item) => sum + item.total, 0);
+            const grandTotalSAC = Object.values(totalPorGrupo).reduce((sum, item) => sum + item.atendidosSAC, 0);
+
+            resultsContainer.innerHTML += `
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Total de Chamados por Grupo</h3>
+                    <div class="overflow-x-auto">
+                        <table id="table-total-por-grupo" class="min-w-full bg-white rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Grupo</th>
+                                    <th class="py-3 px-6 text-left">Total de Chamados</th>
+                                    <th class="py-3 px-6 text-left">Atendidos pelo SAC</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                ${Object.entries(totalPorGrupo).map(([grupo, totals]) => `
+                                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                        <td class="py-3 px-6 text-left whitespace-nowrap">${grupo}</td>
+                                        <td class="py-3 px-6 text-left">${totals.total}</td>
+                                        <td class="py-3 px-6 text-left">${totals.atendidosSAC}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-gray-300 font-bold text-gray-800">
+                                    <td class="py-3 px-6 text-left">Total Geral</td>
+                                    <td class="py-3 px-6 text-left">${grandTotalChamados}</td>
+                                    <td class="py-3 px-6 text-left">${grandTotalSAC}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            const backlogPorGrupo = backlogTriagem.reduce((acc, row) => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || 'Sem Grupo').trim();
+                const chamado = row[COL_CHAMADO];
+                if (!acc[grupo]) {
+                    acc[grupo] = { count: 0, chamados: [] };
+                }
+                acc[grupo].count++;
+                acc[grupo].chamados.push(chamado);
+                return acc;
+            }, {});
+            const grandTotalBacklog = Object.values(backlogPorGrupo).reduce((sum, item) => sum + item.count, 0);
+
+            resultsContainer.innerHTML += `
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Backlog Triagem</h3>
+                    <div class="overflow-x-auto">
+                        <table id="table-backlog-triagem" class="min-w-full bg-white rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Grupo</th>
+                                    <th class="py-3 px-6 text-left">Quantidade</th>
+                                    <th class="py-3 px-6 text-left">Números dos Chamados</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                ${Object.entries(backlogPorGrupo).map(([grupo, data]) => `
+                                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                        <td class="py-3 px-6 text-left whitespace-nowrap">${grupo}</td>
+                                        <td class="py-3 px-6 text-left">${data.count}</td>
+                                        <td class="py-3 px-6 text-left">${data.chamados.join(', ')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-gray-300 font-bold text-gray-800">
+                                    <td class="py-3 px-6 text-left">Total Geral</td>
+                                    <td class="py-3 px-6 text-left">${grandTotalBacklog}</td>
+                                    <td class="py-3 px-6 text-left"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            const resolvidosPorGrupo = resolvidosServicos.reduce((acc, row) => {
+                const grupo = (row[COL_GRUPO_AUTO_CATEGORIA] || '').trim();
+                const chamado = row[COL_CHAMADO];
+                if (!acc[grupo]) {
+                    acc[grupo] = { count: 0, chamados: [] };
+                }
+                acc[grupo].count++;
+                acc[grupo].chamados.push(chamado);
+                return acc;
+            }, {});
+            const grandTotalResolvidos = Object.values(resolvidosPorGrupo).reduce((sum, item) => sum + item.count, 0);
+
+            resultsContainer.innerHTML += `
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Resolvidos Serviços</h3>
+                    <div class="overflow-x-auto">
+                        <table id="table-resolvidos-servicos" class="min-w-full bg-white rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Grupo</th>
+                                    <th class="py-3 px-6 text-left">Quantidade</th>
+                                    <th class="py-3 px-6 text-left">Números dos Chamados</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                ${Object.entries(resolvidosPorGrupo).map(([grupo, data]) => `
+                                    <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                        <td class="py-3 px-6 text-left whitespace-nowrap">${grupo}</td>
+                                        <td class="py-3 px-6 text-left">${data.count}</td>
+                                        <td class="py-3 px-6 text-left">${data.chamados.join(', ')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-gray-300 font-bold text-gray-800">
+                                    <td class="py-3 px-6 text-left">Total Geral</td>
+                                    <td class="py-3 px-6 text-left">${grandTotalResolvidos}</td>
+                                    <td class="py-3 px-6 text-left"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            let latestDate = null;
+            data.forEach(row => {
+                const dateStr = typeof row[COL_DATA_CRIACAO] === 'string' ? row[COL_DATA_CRIACAO].trim() : '';
+                if (dateStr) {
+                    const parts = dateStr.split(' ')[0].split('-');
+                    if (parts.length === 3) {
+                        const day = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10);
+                        const year = parseInt(parts[2], 10);
+                        const currentDate = new Date(year, month - 1, day);
+                        if (!isNaN(currentDate.getTime()) && (!latestDate || currentDate > latestDate)) {
+                            latestDate = currentDate;
+                        }
+                    } else {
+                        const currentDate = new Date(dateStr);
+                        if (!isNaN(currentDate.getTime()) && (!latestDate || currentDate > latestDate)) {
+                            latestDate = currentDate;
+                        }
+                    }
+                }
+            });
+            
+            const mesAno = latestDate ? latestDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' }) : 'Mês/Ano Desconhecido';
+            
+            const backlogPercentual = totalAtendidosSAC > 0 ? (naoAtendidosPrazo / totalAtendidosSAC * 100).toFixed(2) : 0;
+            const resolvidosVsAtendidos = totalAtendidosSAC > 0 ? (totalResolvidosServicos / totalAtendidosSAC * 100).toFixed(2) : 0;
+
+            globalCalculatedData = {
+                mesAno,
+                totalAtendidosSAC,
+                naoAtendidosPrazo,
+                backlogPercentual,
+                resolvidosVsAtendidos,
+                totalResolvidosServicos,
+                totalPorGrupo,
+                backlogPorGrupo,
+                resolvidosPorGrupo
+            };
+
+            resultsContainer.innerHTML += `
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Tabela de Indicadores</h3>
+                    <div class="overflow-x-auto">
+                        <table id="table-indicadores" class="min-w-full bg-white rounded-lg shadow-sm">
+                            <thead>
+                                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                                    <th class="py-3 px-6 text-left">Mês/Ano</th>
+                                    <th class="py-3 px-6 text-left">Total Atendidos pelo SAC</th>
+                                    <th class="py-3 px-6 text-left">Não atendidos no prazo (Backlog Triagem)</th>
+                                    <th class="py-3 px-6 text-left">Backlog %</th>
+                                    <th class="py-3 px-6 text-left">Resolvidos Serviços vs Atendidos pelo SAC %</th>
+                                    <th class="py-3 px-6 text-left">Total Resolvidos Serviços (Valor bruto)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                    <td class="py-3 px-6 text-left whitespace-nowrap">${mesAno}</td>
+                                    <td class="py-3 px-6 text-left">${totalAtendidosSAC}</td>
+                                    <td class="py-3 px-6 text-left">${naoAtendidosPrazo}</td>
+                                    <td class="py-3 px-6 text-left">${backlogPercentual}%</td>
+                                    <td class="py-3 px-6 text-left">${resolvidosVsAtendidos}%</td>
+                                    <td class="py-3 px-6 text-left">${totalResolvidosServicos}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(resultsContainer);
+            exportButton.classList.remove('hidden');
+        }
+
+        exportButton.addEventListener('click', () => {
+            const wb = XLSX.utils.book_new();
+
+            const table1 = document.getElementById('table-total-por-grupo');
+            if (table1) {
+                const ws1 = XLSX.utils.table_to_sheet(table1);
+                XLSX.utils.book_append_sheet(wb, ws1, 'Total por Grupo');
+            }
+
+            const table2 = document.getElementById('table-backlog-triagem');
+            if (table2) {
+                const ws2 = XLSX.utils.table_to_sheet(table2);
+                XLSX.utils.book_append_sheet(wb, ws2, 'Backlog Triagem');
+            }
+
+            const table3 = document.getElementById('table-resolvidos-servicos');
+            if (table3) {
+                const ws3 = XLSX.utils.table_to_sheet(table3);
+                XLSX.utils.book_append_sheet(wb, ws3, 'Resolvidos Serviços');
+            }
+
+            if (globalCalculatedData.mesAno) {
+                const headers = [
+                    'Mês/Ano',
+                    'Total Atendidos pelo SAC',
+                    'Não atendidos no prazo (Backlog Triagem)',
+                    'Backlog %',
+                    'Resolvidos Serviços vs Atendidos pelo SAC %',
+                    'Total Resolvidos Serviços (Valor bruto)'
+                ];
+                
+                const dataRow = [
+                    globalCalculatedData.mesAno,
+                    globalCalculatedData.totalAtendidosSAC,
+                    globalCalculatedData.naoAtendidosPrazo,
+                    parseFloat(globalCalculatedData.backlogPercentual) / 100,
+                    parseFloat(globalCalculatedData.resolvidosVsAtendidos) / 100,
+                    globalCalculatedData.totalResolvidosServicos
+                ];
+
+                const ws4 = XLSX.utils.aoa_to_sheet([headers, dataRow]);
+                
+                if (ws4['D2']) ws4['D2'].z = '0.00%';
+                if (ws4['E2']) ws4['E2'].z = '0.00%';
+
+                XLSX.utils.book_append_sheet(wb, ws4, 'Indicadores');
+            }
+            
+            XLSX.writeFile(wb, 'Relatorio_DeskManager.xlsx');
+        });
+
+        const dropZone = document.querySelector('label[for="fileInput"] > div');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('bg-blue-100');
+            dropZone.classList.remove('bg-gray-50');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('bg-blue-100');
+            dropZone.classList.add('bg-gray-50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('bg-blue-100');
+            dropZone.classList.add('bg-gray-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+    </script>
+</body>
+</html>
