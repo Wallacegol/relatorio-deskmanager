@@ -512,7 +512,7 @@
             data.forEach(row => {
                 const dateStr = typeof row[COL_DATA_CRIACAO] === 'string' ? row[COL_DATA_CRIACAO].trim() : '';
                 if (dateStr) {
-                    const parts = dateStr.split(' ')[0].split('/');
+                    const parts = dateStr.split(' ')[0].split('-');
                     if (parts.length === 3) {
                         const day = parseInt(parts[0], 10);
                         const month = parseInt(parts[1], 10);
@@ -584,24 +584,34 @@
         exportButton.addEventListener('click', () => {
             const wb = XLSX.utils.book_new();
 
-            const table1 = document.getElementById('table-total-por-grupo');
-            if (table1) {
-                const ws1 = XLSX.utils.table_to_sheet(table1);
-                XLSX.utils.book_append_sheet(wb, ws1, 'Total por Grupo');
+            // Adiciona a tabela "Total por Grupo"
+            const totalPorGrupoData = [['Grupo', 'Total de Chamados', 'Atendidos pelo SAC']];
+            for (const [grupo, totals] of Object.entries(globalCalculatedData.totalPorGrupo)) {
+                totalPorGrupoData.push([grupo, totals.total, totals.atendidosSAC]);
             }
+            totalPorGrupoData.push(['Total Geral', Object.values(globalCalculatedData.totalPorGrupo).reduce((sum, item) => sum + item.total, 0), Object.values(globalCalculatedData.totalPorGrupo).reduce((sum, item) => sum + item.atendidosSAC, 0)]);
+            const ws1 = XLSX.utils.aoa_to_sheet(totalPorGrupoData);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Total por Grupo');
 
-            const table2 = document.getElementById('table-backlog-triagem');
-            if (table2) {
-                const ws2 = XLSX.utils.table_to_sheet(table2);
-                XLSX.utils.book_append_sheet(wb, ws2, 'Backlog Triagem');
+            // Adiciona a tabela "Backlog Triagem"
+            const backlogTriagemData = [['Grupo', 'Quantidade', 'Números dos Chamados']];
+            for (const [grupo, data] of Object.entries(globalCalculatedData.backlogPorGrupo)) {
+                backlogTriagemData.push([grupo, data.count, data.chamados.map(c => c.id).join(', ')]);
             }
+            backlogTriagemData.push(['Total Geral', Object.values(globalCalculatedData.backlogPorGrupo).reduce((sum, item) => sum + item.count, 0), '']);
+            const ws2 = XLSX.utils.aoa_to_sheet(backlogTriagemData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Backlog Triagem');
 
-            const table3 = document.getElementById('table-resolvidos-servicos');
-            if (table3) {
-                const ws3 = XLSX.utils.table_to_sheet(table3);
-                XLSX.utils.book_append_sheet(wb, ws3, 'Resolvidos Serviços');
+            // Adiciona a tabela "Resolvidos Serviços"
+            const resolvidosServicosData = [['Grupo', 'Quantidade', 'Números dos Chamados']];
+            for (const [grupo, data] of Object.entries(globalCalculatedData.resolvidosPorGrupo)) {
+                resolvidosServicosData.push([grupo, data.count, data.chamados.map(c => c.id).join(', ')]);
             }
+            resolvidosServicosData.push(['Total Geral', Object.values(globalCalculatedData.resolvidosPorGrupo).reduce((sum, item) => sum + item.count, 0), '']);
+            const ws3 = XLSX.utils.aoa_to_sheet(resolvidosServicosData);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Resolvidos Serviços');
 
+            // Adiciona a tabela de "Indicadores" com formatação correta para porcentagem
             if (globalCalculatedData.mesAno) {
                 const headers = [
                     'Mês/Ano',
